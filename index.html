@@ -8,40 +8,101 @@
     <!-- Load the JavaScript Maps SDK core API -->
     <script src="https://js.arcgis.com/4.34/"></script>
 
-    <!-- Load the JavaScript Maps SDK Map components or other component packages -->
-    <script type="module" src="https://js.arcgis.com/4.34/map-components/"></script>
-
     <style>
-    html,
-    body {
-        height: 100%;
-        margin: 0;
-    }
+        html,
+        body,
+        #view {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
     </style>
 </head>
 
 <body class="calcite-mode-light">
     <div id="view"></div>
 
-    <script src="https://js.arcgis.com/4.34/"></script>
     <script>
-    require(["esri/views/SceneView", "esri/WebScene"], (SceneView, WebScene) => {
-        
-        // Load your Web Scene by portal ID
-        const scene = new WebScene({
-        portalItem: {
-            id: "264eedee8ff143a4a5530613f426b8a7" // <-- paste your ArcGIS Online scene ID
-        }
-        });
+        require([
+            "esri/WebScene",
+            "esri/views/SceneView",
+            "esri/widgets/Search",
+            "esri/widgets/Locate",
+            "esri/widgets/Compass",
+            "esri/widgets/NavigationToggle",
+            "esri/portal/PortalItem"
+        ], function (
+            WebScene, SceneView, Search, Locate, Compass, NavigationToggle, PortalItem
+        ) {
 
-        // Create the 3D view
-        const view = new SceneView({
-        container: "view",
-        map: scene
-        });
+            const scene = new WebScene({
+                portalItem: {
+                    id: "264eedee8ff143a4a5530613f426b8a7"
+                }
+            });
 
-    });
+            const view = new SceneView({
+                container: "view",
+                map: scene
+            });
+
+            // Wait until the scene loads so we can access the layers
+            view.when(async () => {
+                await scene.loadAll();
+
+                const skiRuns = scene.layers.find(layer => layer.title === "runs_lifts_geometry");
+
+                console.log("Ski runs layer:", skiRuns);
+
+                if (!skiRuns) {
+                    console.error("Layer NOT found — check title in Scene!");
+                    return;
+                }
+
+                // Search widget for ski runs
+                const searchWidget = new Search({
+                    view: view,
+                    includeDefaultSources: false,
+                    sources: [
+                        {
+                            layer: skiRuns,
+                            searchFields: ["name"],
+                            displayField: "name",
+                            exactMatch: false,
+                            outFields: ["*"],
+                            name: "Ski Runs",
+                            placeholder: "Search ski runs..."
+                        }
+                    ]
+                });
+                view.ui.add(searchWidget, "top-right");
+
+                // User GPS location
+                const locateWidget = new Locate({
+                    view: view,
+                    useHeadingEnabled: true,
+                    goToOverride: function (view, options) {
+                        options.target.scale = 3000;
+                        return view.goTo(options.target);
+                    }
+                });
+                view.ui.add(locateWidget, "top-left");
+
+                // Compass (reset rotation)
+                const compass = new Compass({
+                    view: view
+                });
+                view.ui.add(compass, "top-left");
+
+                // Rotation + tilt controls
+                const navToggle = new NavigationToggle({
+                    view: view
+                });
+                view.ui.add(navToggle, "top-left");
+            });
+        });
     </script>
+
 </body>
 
 </html>
