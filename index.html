@@ -2,109 +2,117 @@
 <html lang="en">
 
 <head>
-    <!-- Load Calcite Design System -->
+    <meta charset="UTF-8" />
+    <title>Ski Runs Scene</title>
+
+    <!-- Calcite Design System (optional) -->
     <script type="module" src="https://js.arcgis.com/calcite-components/3.3.3/calcite.esm.js"></script>
 
-    <!-- Load the JavaScript Maps SDK core API -->
+    <!-- ArcGIS Maps SDK -->
     <script src="https://js.arcgis.com/4.34/"></script>
-
     <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css">
 
     <style>
-        html,
-        body,
-        #view {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-        }
+      html, body, #view {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
     </style>
 </head>
 
-<body class="calcite-mode-light">
+<body>
     <div id="view"></div>
 
     <script>
-        require([
-            "esri/WebScene",
-            "esri/views/SceneView",
-            "esri/widgets/Search",
-            "esri/widgets/Locate",
-            "esri/widgets/Compass",
-            "esri/widgets/NavigationToggle",
-            "esri/portal/PortalItem"
-        ], function (
-            WebScene, SceneView, Search, Locate, Compass, NavigationToggle, PortalItem
-        ) {
+      require([
+        "esri/WebScene",
+        "esri/views/SceneView",
+        "esri/widgets/Search",
+        "esri/widgets/Locate",
+        "esri/widgets/Compass",
+        "esri/widgets/NavigationToggle"
+      ], function(WebScene, SceneView, Search, Locate, Compass, NavigationToggle) {
 
-            const scene = new WebScene({
-                portalItem: {
-                    id: "264eedee8ff143a4a5530613f426b8a7"
-                }
-            });
-
-            const view = new SceneView({
-                container: "view",
-                map: scene
-            });
-
-            // Wait until the scene loads so we can access the layers
-            view.when(async () => {
-                await scene.loadAll();
-
-                const skiRuns = scene.layers.find(layer => layer.title === "runs_lifts_geometry");
-
-                console.log("Ski runs layer:", skiRuns);
-
-                if (!skiRuns) {
-                    console.error("Layer NOT found — check title in Scene!");
-                    return;
-                }
-
-                // Search widget for ski runs
-                const searchWidget = new Search({
-                    view: view,
-                    includeDefaultSources: false,
-                    sources: [
-                        {
-                            layer: skiRuns,
-                            searchFields: ["name"],
-                            displayField: "name",
-                            exactMatch: false,
-                            outFields: ["*"],
-                            name: "Ski Runs",
-                            placeholder: "Search ski runs..."
-                        }
-                    ]
-                });
-                view.ui.add(searchWidget, "top-right");
-
-                // User GPS location
-                const locateWidget = new Locate({
-                    view: view,
-                    useHeadingEnabled: true,
-                    goToOverride: function (view, options) {
-                        options.target.scale = 3000;
-                        return view.goTo(options.target);
-                    }
-                });
-                view.ui.add(locateWidget, "top-left");
-
-                // Compass (reset rotation)
-                const compass = new Compass({
-                    view: view
-                });
-                view.ui.add(compass, "top-left");
-
-                // Rotation + tilt controls
-                const navToggle = new NavigationToggle({
-                    view: view
-                });
-                view.ui.add(navToggle, "top-left");
-            });
+        // Load your WebScene
+        const scene = new WebScene({
+          portalItem: {
+            id: "264eedee8ff143a4a5530613f426b8a7"
+          }
         });
+
+        const view = new SceneView({
+          container: "view",
+          map: scene
+        });
+
+        view.when(async () => {
+          await scene.loadAll();
+
+          // Find your ski layer
+          const skiRuns = scene.layers.find(l => l.title === "runs_lifts_geometry");
+          console.log("Found ski layer:", skiRuns);
+
+          if (!skiRuns) {
+            console.error("Layer title mismatch. Check the layer name in the Scene.");
+            return;
+          }
+
+          // ---------- ADD LABELS ----------
+          skiRuns.labelsVisible = true;
+          skiRuns.labelingInfo = [
+            {
+              labelExpressionInfo: {
+                expression: "$feature.name"   // change if field name is different
+              },
+              symbol: {
+                type: "text",
+                color: "white",
+                haloColor: "black",
+                haloSize: "2px",
+                font: {
+                  size: 12,
+                  family: "Arial",
+                  weight: "bold"
+                }
+              }
+            }
+          ];
+
+          // ---------- SEARCH WIDGET ----------
+          const searchWidget = new Search({
+            view: view,
+            includeDefaultSources: false,
+            sources: [{
+              layer: skiRuns,
+              searchFields: ["name"],   // Change if needed
+              displayField: "name",
+              placeholder: "Search ski runs...",
+              name: "Ski Runs",
+            }]
+          });
+
+          view.ui.add(searchWidget, "top-right");
+
+          // ---------- LOCATE ----------
+          const locateWidget = new Locate({
+            view: view,
+            useHeadingEnabled: true,
+            goToOverride: (view, options) => {
+              options.target.scale = 3000;
+              return view.goTo(options.target);
+            }
+          });
+          view.ui.add(locateWidget, "top-left");
+
+          // ---------- COMPASS ----------
+          view.ui.add(new Compass({ view }), "top-left");
+
+          // ---------- NAVIGATION (rotate/tilt) ----------
+          view.ui.add(new NavigationToggle({ view }), "top-left");
+        });
+      });
     </script>
 
 </body>
-
 </html>
