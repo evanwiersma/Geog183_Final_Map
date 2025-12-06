@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- Load Calcite Design System -->
+    <script type="module" src="https://js.arcgis.com/calcite-components/3.3.3/calcite.esm.js"></script>
+
+    <!-- Load the JavaScript Maps SDK core API -->
+    <script src="https://js.arcgis.com/4.34/"></script>
+
+    <!-- Load the JavaScript Maps SDK Map components or other component packages -->
+    <script type="module" src="https://js.arcgis.com/4.34/map-components/"></script>
+
+    <style>
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+    }
+    </style>
+</head>
+
+<body class="calcite-mode-light">
+    <div id="view"></div>
+
+    <script src="https://js.arcgis.com/4.34/"></script>
+    <script>
+    require(["esri/views/SceneView", "esri/WebScene"], (SceneView, WebScene) => {
+        
+        // Load your Web Scene by portal ID
+        const scene = new WebScene({
+        portalItem: {
+            id: "264eedee8ff143a4a5530613f426b8a7" // <-- paste your ArcGIS Online scene ID
+        }
+        });
+
+        // Create the 3D view
+        const view = new SceneView({
+        container: "view",
+        map: scene
+        });
+
+    });
+    </script>
+</body>
+
+</html>
