@@ -29,10 +29,25 @@
     }
 
     #legend img {
-      max-width: 220px;
+      max-width: 300px;
       height: auto;
       display: block;
     }
+    #bottom-left-image {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 8px;
+  border-radius: 6px;
+  }
+
+#bottom-left-image img {
+  width: 320px;   /* adjust size here */
+  height: auto;
+  }
+
   </style>
 </head>
 
@@ -41,6 +56,11 @@
   <div id="legend">
     <img src="https://raw.github.com/evanwiersma/Geog183_Final_Map/main/Symbols/Legend.png" alt="Map Legend">
   </div>
+
+  <div id="bottom-left-image">
+    <img src="PATH_TO_YOUR_IMAGE.png" alt="Legend">
+  </div>
+
 
   <script>
     require([
