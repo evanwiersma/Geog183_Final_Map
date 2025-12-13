@@ -5,65 +5,71 @@
   <meta charset="UTF-8" />
   <title>Ski Runs Scene</title>
 
+  <!-- Calcite Design System (optional) -->
   <script type="module" src="https://js.arcgis.com/calcite-components/3.3.3/calcite.esm.js"></script>
 
+  <!-- ArcGIS Maps SDK -->
   <script src="https://js.arcgis.com/4.34/"></script>
   <link rel="stylesheet" href="https://js.arcgis.com/4.34/esri/themes/light/main.css">
 
   <style>
+    /* Fullscreen map */
     html, body, #view {
       height: 100%;
       margin: 0;
       padding: 0;
     }
 
-    /* Legend at bottom-right */
+    /* Legend container in bottom-right */
     #legend {
       position: absolute;
       bottom: 20px;
       right: 20px;
       z-index: 10;
       background: rgba(255, 255, 255, 0.85);
-      padding: 12px;
+      padding: 0; /* remove padding to avoid shrinking image */
       border-radius: 6px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
+    /* Legend image size */
     #legend img {
-      width: 300px;
+      width: 300px; /* fixed width for legend */
       height: auto;
       display: block;
     }
 
-    /* Bottom-left image/logo */
+    /* Bottom-left image container */
     #bottom-left-image {
       position: absolute;
       bottom: 16px;
       left: 16px;
       z-index: 10;
       background: rgba(255, 255, 255, 0.85);
-      padding: 10px;
+      padding: 0; /* remove padding */
       border-radius: 6px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
+    /* Bottom-left image size */
     #bottom-left-image img {
-      width: 300px; /* adjust as needed */
+      width: 300px; /* fixed width for logo/image */
       height: auto;
       display: block;
     }
+
   </style>
 </head>
 
 <body>
   <div id="view"></div>
 
-  <!-- Legend -->
+  <!-- Legend at bottom-right -->
   <div id="legend">
     <img src="https://raw.githubusercontent.com/evanwiersma/Geog183_Final_Map/main/Symbols/Legend.png" alt="Map Legend">
   </div>
 
-  <!-- Bottom-left logo -->
+  <!-- Custom image/logo at bottom-left -->
   <div id="bottom-left-image">
     <img src="https://raw.githubusercontent.com/evanwiersma/Geog183_Final_Map/main/Symbols/dplogo.jpg" alt="Logo">
   </div>
@@ -76,13 +82,13 @@
       "esri/widgets/Locate",
       "esri/widgets/Compass",
       "esri/widgets/NavigationToggle"
-    ], function (WebScene, SceneView, Search, Locate, Compass, NavigationToggle) {
+    ], function (
+      WebScene, SceneView, Search, Locate, Compass, NavigationToggle
+    ) {
 
-      // Load Scene
+      // Load WebScene
       const scene = new WebScene({
-        portalItem: {
-          id: "264eedee8ff143a4a5530613f426b8a7"
-        }
+        portalItem: { id: "264eedee8ff143a4a5530613f426b8a7" }
       });
 
       const view = new SceneView({
@@ -93,15 +99,16 @@
       view.when(async () => {
         await scene.loadAll();
 
-        // Ski runs layer
+        // Find ski runs/lifts layer
         const skiRuns = scene.layers.find(l => l.title === "runs_lifts_geometry");
         console.log("Found ski layer:", skiRuns);
+
         if (!skiRuns) {
           console.error("Layer title mismatch. Check the layer name in the Scene.");
           return;
         }
 
-        // Search widget
+        // ---------- SEARCH WIDGET ----------
         const searchWidget = new Search({
           view: view,
           includeDefaultSources: false,
@@ -115,7 +122,7 @@
         });
         view.ui.add(searchWidget, "top-right");
 
-        // Locate widget
+        // ---------- LOCATE WIDGET ----------
         const locateWidget = new Locate({
           view: view,
           useHeadingEnabled: true,
@@ -126,13 +133,15 @@
         });
         view.ui.add(locateWidget, "top-left");
 
-        // Compass widget
+        // ---------- COMPASS ----------
         view.ui.add(new Compass({ view }), "top-left");
 
-        // Navigation toggle
+        // ---------- NAVIGATION TOGGLE ----------
         view.ui.add(new NavigationToggle({ view }), "top-left");
+
       });
     });
   </script>
+
 </body>
 </html>
