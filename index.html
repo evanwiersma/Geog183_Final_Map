@@ -17,50 +17,56 @@
       padding: 0;
     }
 
+    /* Legend at bottom-right */
     #legend {
       position: absolute;
       bottom: 20px;
       right: 20px;
       z-index: 10;
       background: rgba(255, 255, 255, 0.85);
-      padding: 8px;
+      padding: 12px;
       border-radius: 6px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
 
     #legend img {
-      max-width: 350px;
+      width: 500px; /* increased size */
       height: auto;
       display: block;
     }
+
+    /* Bottom-left image/logo */
     #bottom-left-image {
-  position: absolute;
-  bottom: 16px;
-  left: 16px;
-  z-index: 10;
-  background: rgba(255, 255, 255, 0.85);
-  padding: 8px;
-  border-radius: 6px;
-  }
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 10px;
+      border-radius: 6px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
 
-#bottom-left-image img {
-  width: 320px;   /* adjust size here */
-  height: auto;
-  }
-
+    #bottom-left-image img {
+      width: 320px; /* adjust as needed */
+      height: auto;
+      display: block;
+    }
   </style>
 </head>
 
 <body>
   <div id="view"></div>
+
+  <!-- Legend -->
   <div id="legend">
     <img src="https://raw.githubusercontent.com/evanwiersma/Geog183_Final_Map/main/Symbols/Legend.png" alt="Map Legend">
   </div>
 
+  <!-- Bottom-left logo -->
   <div id="bottom-left-image">
-    <img src="https://raw.githubusercontent.com/evanwiersma/Geog183_Final_Map/main/Symbols/dplogo.jpg" alt="Legend">
+    <img src="https://raw.githubusercontent.com/evanwiersma/Geog183_Final_Map/main/Symbols/dplogo.jpg" alt="Logo">
   </div>
-
 
   <script>
     require([
@@ -70,14 +76,7 @@
       "esri/widgets/Locate",
       "esri/widgets/Compass",
       "esri/widgets/NavigationToggle"
-    ], function (
-      WebScene,
-      SceneView,
-      Search,
-      Locate,
-      Compass,
-      NavigationToggle
-    ) {
+    ], function (WebScene, SceneView, Search, Locate, Compass, NavigationToggle) {
 
       // Load Scene
       const scene = new WebScene({
@@ -94,16 +93,15 @@
       view.when(async () => {
         await scene.loadAll();
 
-        // Layers
+        // Ski runs layer
         const skiRuns = scene.layers.find(l => l.title === "runs_lifts_geometry");
         console.log("Found ski layer:", skiRuns);
-
         if (!skiRuns) {
           console.error("Layer title mismatch. Check the layer name in the Scene.");
           return;
         }
 
-        // Search
+        // Search widget
         const searchWidget = new Search({
           view: view,
           includeDefaultSources: false,
@@ -117,7 +115,7 @@
         });
         view.ui.add(searchWidget, "top-right");
 
-        // Locate
+        // Locate widget
         const locateWidget = new Locate({
           view: view,
           useHeadingEnabled: true,
@@ -128,14 +126,13 @@
         });
         view.ui.add(locateWidget, "top-left");
 
-        // Compass
+        // Compass widget
         view.ui.add(new Compass({ view }), "top-left");
 
-        // Navigation
+        // Navigation toggle
         view.ui.add(new NavigationToggle({ view }), "top-left");
       });
     });
   </script>
-
 </body>
 </html>
